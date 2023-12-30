@@ -5,14 +5,17 @@ import axios from 'axios';
 
 const API_URL = `https://pokeapi.co/api/v2`
 const pokemonDetails = ref(null)
+const isLoading = ref<boolean>(false)
 
 onMounted(() => {
-    const route = useRoute()
-    const id = route.params.id
+    const id = useRoute().params.id
+    isLoading.value = true
+
     axios
         .get(`${API_URL}/pokemon/${id}`)
         .then(response => {
             pokemonDetails.value = response.data
+            isLoading.value = false
         })
         .catch((err) => console.log(err))
 })
@@ -20,7 +23,10 @@ onMounted(() => {
 </script>
 
 <template>
-    <div v-if="pokemonDetails">
+    <div v-if="isLoading">
+        <i class="fa fa-refresh fa-spin fa-2x"></i>
+    </div>
+    <div v-if="pokemonDetails && !isLoading">
         <h2>{{ pokemonDetails.name }} (#{{pokemonDetails.id}})</h2>
 
         <h3>Images</h3>

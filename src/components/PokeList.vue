@@ -11,12 +11,18 @@ declare interface Pokemon {
 const API_URL = `https://pokeapi.co/api/v2`
 const IMG_PATH = 'node_modules/pokemon-sprites/sprites/pokemon'
 const pokemons = ref<Pokemon | null>(null)
+const isLoading = ref<boolean>(false)
 
 onMounted(() => {
+    isLoading.value = true
+
     /* load all available pokemons */
     axios
         .get(`${API_URL}/pokemon/?limit=1302`)
-        .then(response => (pokemons.value = response.data.results))
+        .then(response => {
+            pokemons.value = response.data.results
+            isLoading.value = false
+        })
         .catch((err) => console.log(err))
 })
 
@@ -36,7 +42,10 @@ function setAlternativeImage(event) {
 </script>
 
 <template>
-    <div v-if="pokemons" class="w3-row">
+    <div v-if="isLoading">
+        <i class="fa fa-refresh fa-spin fa-2x"></i>
+    </div>
+    <div v-if="pokemons && !isLoading" class="w3-row">
         <div
             v-for="item in pokemons"
             class="w3-col l2 m3"
