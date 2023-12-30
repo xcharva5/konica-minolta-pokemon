@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, ref, watchEffect} from "vue";
+import {onMounted, ref} from "vue";
 import axios from 'axios';
 
 declare interface Pokemon {
@@ -33,24 +33,29 @@ function setAlternativeImage(event) {
 }
 
 function openDetails(pokemon): void {
-    console.log('open pokemon details')
+    console.log(`${pokemon.name} details`)
 }
 
 </script>
 
 <template>
     <div v-if="pokemons" class="w3-row">
-        <button
+        <div
             v-for="item in pokemons"
             @click="openDetails(item)"
-            class="w3-button w3-quarter">
-            <img
-                :src="getImagePath(getPokemonNumber(item))"
-                alt="Pokemon image"
-                class="w3-image"
-                @error="setAlternativeImage">
-            #{{getPokemonNumber(item)}} | {{item.name}}
-        </button>
+            class="w3-col l2 m3"
+            style="border: 1px solid black; background-color: aquamarine">
+            <div class="w3-display-container">
+                <div class="w3-display-bottomleft w3-black w3-padding">{{ item.name }}</div>
+                <img
+                    :src="getImagePath(getPokemonNumber(item))"
+                    :alt='item.name'
+                    @error="setAlternativeImage"
+                    class="w3-image"
+                    style="height: 150px; background-color: brown">
+            </div>
+
+        </div>
     </div>
 </template>
 
