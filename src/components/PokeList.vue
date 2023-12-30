@@ -1,45 +1,57 @@
-<script setup>
-import {ref, watchEffect} from "vue";
+<script setup lang="ts">
+import {onMounted, ref, watchEffect} from "vue";
+import axios from 'axios';
 
-const API_URL = `https://pokeapi.co/api/v2/pokemon/?limit=1302`
-const pokemons = ref(null)
-const selectedPokemon = ref(null);
+declare interface Pokemon {
+    name: string
+    url: string
+}
 
-watchEffect(async () => {
-    /* this effect will run immediately and then re-run whenever currentBranch.value changes */
-    const url = `${API_URL}`
-    pokemons.value = await (await fetch(url)).json()
+const API_URL = `https://pokeapi.co/api/v2`
+const IMG_PATH = 'node_modules/pokemon-sprites/sprites/pokemon'
+const pokemons = ref<Pokemon | null>(null)
+
+onMounted(() => {
+    /* load all available pokemons */
+    axios
+        .get(`${API_URL}/pokemon/?limit=1302`)
+        .then(response => (pokemons.value = response.data.results))
+        .catch((err) => console.log(err))
 })
 
-function openDetailModal(pokemon) {
-    selectedPokemon.value = pokemon;
-    document.getElementById('pokeModal').style.display='block';
+function getImagePath(pokemonNumber: string): string {
+    return `${IMG_PATH}/${pokemonNumber}.png`
+}
+
+function getPokemonNumber(pokemon: ref<Pokemon>): string {
+    const searchTerm = 'pokemon/'
+    return pokemon.url.substring(pokemon.url.indexOf(searchTerm) + searchTerm.length, pokemon.url.length - 1)
+}
+
+function setAlternativeImage(event) {
+    event.target.src = `${IMG_PATH}/0.png`
+}
+
+function openDetails(pokemon): void {
+    console.log('open pokemon details')
 }
 
 </script>
 
 <template>
-    <template v-if="pokemons">
-        <template v-for="(item, index) in pokemons?.results">
-            <button
-                @click="openDetailModal(item)"
-                class="w3-button">
-                <img src="#" alt="img alt desc">
-                #{{index + 1}} | {{item?.name}}
-            </button>
-        </template>
-        <div id="pokeModal" class="w3-modal">
-            <div class="w3-modal-content">
-                <div class="w3-container">
-                        <span
-                            onclick="document.getElementById('pokeModal').style.display='none'"
-                            class="w3-button w3-display-topright">&times;
-                        </span>
-                    <p>{{selectedPokemon?.name}}</p>
-                </div>
-            </div>
-        </div>
-    </template>
+    <div v-if="pokemons" class="w3-row">
+        <button
+            v-for="item in pokemons"
+            @click="openDetails(item)"
+            class="w3-button w3-quarter">
+            <img
+                :src="getImagePath(getPokemonNumber(item))"
+                alt="Pokemon image"
+                class="w3-image"
+                @error="setAlternativeImage">
+            #{{getPokemonNumber(item)}} | {{item.name}}
+        </button>
+    </div>
 </template>
 
 <style scoped>
