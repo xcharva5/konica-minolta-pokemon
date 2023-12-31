@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {onMounted, ref} from "vue";
+import {capitalize, onMounted, ref} from "vue";
 import axios from 'axios';
 
 declare interface Pokemon {
@@ -9,7 +9,9 @@ declare interface Pokemon {
 }
 
 const API_URL = `https://pokeapi.co/api/v2`
-const IMG_PATH = 'node_modules/pokemon-sprites/sprites/pokemon'
+const IMG_PATH = 'node_modules/pokemon-sprites/sprites/pokemon/other/official-artwork'
+const searchedCount = 1010
+
 const pokemons = ref<Pokemon | null>(null)
 const isLoading = ref<boolean>(false)
 
@@ -18,7 +20,7 @@ onMounted(() => {
 
     /* load all available pokemons */
     axios
-        .get(`${API_URL}/pokemon/?limit=1302`)
+        .get(`${API_URL}/pokemon/?limit=${searchedCount}`)
         .then(response => {
             pokemons.value = response.data.results
             isLoading.value = false
@@ -35,30 +37,36 @@ function getPokemonNumber(pokemon: ref<Pokemon>): string {
     return pokemon.url.substring(pokemon.url.indexOf(searchTerm) + searchTerm.length, pokemon.url.length - 1)
 }
 
-function setAlternativeImage(event) {
-    event.target.src = `${IMG_PATH}/0.png`
+function setAlternativeImage(event): void {
+    event.target.src = "src/assets/placeholder.png"
+}
+
+function formatName(pokemon: string): string {
+    return pokemon.name.replace('-', ' ')
 }
 
 </script>
 
 <template>
-    <div v-if="isLoading">
-        <i class="fa fa-refresh fa-spin fa-2x"></i>
+    <div v-if="isLoading" class="w3-display-middle">
+        <i class="fa fa-refresh fa-spin fa-5x"></i>
     </div>
-    <div v-if="pokemons && !isLoading" class="w3-row">
+    <div v-if="pokemons && !isLoading" class="w3-row-padding">
         <div
-            v-for="item in pokemons"
-            class="w3-col l2 m3"
-            style="border: 1px solid black; background-color: aquamarine">
-            <router-link :to="{ name: 'PokeDetails', params: {id: getPokemonNumber(item)}}">
-                <div class="w3-display-container">
-                    <div class="w3-display-bottomleft w3-black w3-padding">{{ item.name }}</div>
+            v-for="pokemon in pokemons"
+            class="w3-col l2 m4 s6 w3-margin-bottom">
+            <router-link
+                :to="{ name: 'PokeDetails', params: {id: getPokemonNumber(pokemon)}}"
+                class="list-item-link">
+                <div class="w3-card w3-hover-shadow w3-round">
                     <img
-                            :src="getImagePath(getPokemonNumber(item))"
-                            :alt='item.name'
-                            @error="setAlternativeImage"
-                            class="w3-image"
-                            style="height: 150px; background-color: brown">
+                        :src="getImagePath(getPokemonNumber(pokemon))"
+                        :alt='pokemon.name'
+                        @error="setAlternativeImage"
+                        class="w3-image w3-padding">
+                    <div class="w3-container w3-center pokemon-name-wrapper">
+                        <p class="pokemon-name">{{formatName(pokemon)}}</p>
+                    </div>
                 </div>
             </router-link>
         </div>
@@ -66,5 +74,11 @@ function setAlternativeImage(event) {
 </template>
 
 <style scoped>
+    .pokemon-name {
+        text-transform: capitalize;
+    }
 
+    .list-item-link {
+        text-decoration: none;
+    }
 </style>
