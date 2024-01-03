@@ -65,7 +65,7 @@ function formatName(pokemon: string): string {
                         @error="setAlternativeImage"
                         class="w3-image w3-padding">
                     <div class="w3-container w3-center pokemon-name-wrapper">
-                        <p class="pokemon-name">{{formatName(pokemon)}}</p>
+                        <p class="pokemon-name">{{formatName(pokemon)}} (#{{ getPokemonNumber(pokemon) }})</p>
                     </div>
                 </div>
             </router-link>
