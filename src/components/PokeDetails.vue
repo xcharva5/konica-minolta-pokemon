@@ -2,6 +2,7 @@
 import {onMounted, ref, watch} from "vue";
 import {onBeforeRouteUpdate, useRoute} from "vue-router";
 import axios from 'axios';
+import PokeDetailsGeneral from "./PokeDetailsGeneral.vue";
 
 const API_URL = `https://pokeapi.co/api/v2`
 const IMG_PATH = '/node_modules/pokemon-sprites/sprites/pokemon/other/official-artwork'
@@ -195,23 +196,6 @@ function getPokemonNumberFromSpeciesUrl(url): string {
     return url.substring(url.indexOf(searchTerm) + searchTerm.length, url.length - 1)
 }
 
-function getPokemonFlavorText(species): string {
-    const regex = /\f/g
-    return species.flavor_text_entries.find(text => text.language.name === 'en').flavor_text.replaceAll(regex, ' ')
-}
-
-function getHeightInCentimeters(height) {
-    return height * 10
-}
-
-function getPokemonCategory(generas) {
-    return generas.find(genra => genra.language.name === 'en').genus
-}
-
-function getWeightInKilos(weight) {
-    return weight / 10
-}
-
 </script>
 
 <template>
@@ -228,46 +212,11 @@ function getWeightInKilos(weight) {
                 <img :src="getImagePath(getPokemonNumberFromSpeciesUrl(pokemonDetails.species.url))" style="width: 50%">
             </section>
             <section class="w3-col w3-half w3-margin-bottom">
-                <div class="w3-card w3-padding w3-round">
-                    <div class="w3-margin-bottom">
-                        <span class="w3-large">{{ getPokemonFlavorText(pokemonSpecies) }}</span>
-                    </div>
-                    <div class="w3-row">
-                        <div class="w3-col l6 w3-margin-bottom">
-                            <h3 class="w3-large bold">Height</h3>
-                            <div>{{ getHeightInCentimeters(pokemonDetails.height) }} cm</div>
-                        </div>
-                        <div class="w3-col l6 w3-margin-bottom">
-                            <h3 class="w3-large bold">Category</h3>
-                            <div>{{ getPokemonCategory(pokemonSpecies.genera) }}</div>
-                        </div>
-                        <div class="w3-col l6 w3-margin-bottom">
-                            <h3 class="w3-large bold">Weight</h3>
-                            <div>{{ getWeightInKilos(pokemonDetails.weight) }} kg</div>
-                        </div>
-                        <div class="w3-col l6 w3-margin-bottom">
-                            <h3 class="w3-large bold">Abilities</h3>
-                            <div v-for="ability in pokemonAbilities" class="capitalized">
-                                {{ ability.ability.name }}
-                            </div>
-                        </div>
-                        <div class="w3-col l6 w3-margin-bottom">
-                            <h3 class="w3-large bold">Gender</h3>
-                            <div v-if="pokemonSpecies.gender_rate === -1">
-                                Unknown
-                            </div>
-                            <div v-else-if="pokemonSpecies.gender_rate === 0">
-                                Male only
-                            </div>
-                            <div v-else-if="pokemonSpecies.gender_rate < 8">
-                                Both
-                            </div>
-                            <div v-else-if="pokemonSpecies.gender_rate === 8">
-                                Female only
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <PokeDetailsGeneral
+                    :pokemonDetails="pokemonDetails"
+                    :pokemonSpecies="pokemonSpecies"
+                    :pokemonAbilities="pokemonAbilities"
+                ></PokeDetailsGeneral>
             </section>
         </div>
 
@@ -346,12 +295,14 @@ function getWeightInKilos(weight) {
                     <h2 class="w3-xxlarge">Evolutions</h2>
                     <span v-for="evolution in pokemonEvolutionChain" class="w3-mobile w3-padding" >
                             <span v-if="evolution.species">
-                                <img
-                                    class="w3-circle w3-border w3-hover-border-dark-gray"
-                                    :src="getImagePath(getPokemonNumberFromSpeciesUrl(evolution.species.url))"
-                                    @error="setAlternativeImage"
-                                    style="width: 150px"
-                                >
+                                <router-link :to="{ name: 'PokeDetails', params: {id: getPokemonNumberFromSpeciesUrl(evolution.species.url)}}">
+                                    <img
+                                        class="w3-circle w3-border w3-hover-border-dark-gray"
+                                        :src="getImagePath(getPokemonNumberFromSpeciesUrl(evolution.species.url))"
+                                        @error="setAlternativeImage"
+                                        style="width: 150px"
+                                    >
+                                </router-link>
                             </span>
                             <span v-else-if="evolution === 'next_level'">
                                 <i class="fa fa-solid fa-chevron-right fa-3x hidden-on-mobile"></i>
@@ -379,10 +330,6 @@ function getWeightInKilos(weight) {
 
     .capitalized {
         text-transform: capitalize;
-    }
-
-    .bold {
-        font-weight: bold
     }
 
     ul {
