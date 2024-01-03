@@ -47,6 +47,7 @@
       pokemonSpecies: {},
       pokemonAbilities: {}
   })
+
   function getPokemonFlavorText(species): string {
       const regex = /\f/g
       return species.flavor_text_entries.find(text => text.language.name === 'en').flavor_text.replaceAll(regex, ' ')

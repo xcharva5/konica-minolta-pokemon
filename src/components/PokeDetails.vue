@@ -3,6 +3,7 @@ import {onMounted, ref, watch} from "vue";
 import {onBeforeRouteUpdate, useRoute} from "vue-router";
 import axios from 'axios';
 import PokeDetailsGeneral from "./PokeDetailsGeneral.vue";
+import PokeDetailsStats from "./PokeDetailsStats.vue";
 
 const API_URL = `https://pokeapi.co/api/v2`
 const IMG_PATH = '/node_modules/pokemon-sprites/sprites/pokemon/other/official-artwork'
@@ -12,7 +13,6 @@ const pokemonDetails = ref(null)
 const pokemonSpecies = ref(null)
 const pokemonAbilities = ref(null)
 const pokemonEvolutionChain = ref([])
-const pokemonStats = ref({})
 const increasedDmgFrom = ref([])
 const reducedDmgFrom = ref([])
 const pokemonWeaknesses = ref([])
@@ -29,7 +29,7 @@ onMounted(async () => {
         .then(response => {
             pokemonDetails.value = response.data
             pokemonAbilities.value = response.data.abilities.filter(ability => ability.is_hidden === false)
-            pokemonStats.value = calculatePokemonStats(response.data)
+            // pokemonStats.value = calculatePokemonStats(response.data)
         })
         .catch((err) => console.log(err))
     // .finally(() => (isLoading.value = false))
@@ -53,7 +53,7 @@ onMounted(async () => {
                 .then(response => {
                     pokemonDetails.value = response.data
                     pokemonAbilities.value = response.data.abilities.filter(ability => ability.is_hidden === false)
-                    pokemonStats.value = calculatePokemonStats(response.data)
+                    // pokemonStats.value = calculatePokemonStats(response.data)
                 })
                 .catch((err) => console.log(err))
             // .finally(() => (isLoading.value = false))
@@ -107,17 +107,6 @@ function getImagePath(pokemonNumber: string): string {
 
 function setAlternativeImage(event): void {
     event.target.src = "src/assets/placeholder.png"
-}
-
-function calculatePokemonStats(pokemon) {
-    return {
-        hp: pokemon.stats.find(stat => stat.stat.name === 'hp')?.base_stat,
-        attack: pokemon.stats.find(stat => stat.stat.name === 'attack')?.base_stat,
-        defense: pokemon.stats.find(stat => stat.stat.name === 'defense')?.base_stat,
-        specialAttack: pokemon.stats.find(stat => stat.stat.name === 'special-attack')?.base_stat,
-        specialDefense: pokemon.stats.find(stat => stat.stat.name === 'special-defense')?.base_stat,
-        speed: pokemon.stats.find(stat => stat.stat.name === 'speed')?.base_stat
-    }
 }
 
 function getWeaknessesAndStrenghts(type) {
@@ -222,51 +211,7 @@ function getPokemonNumberFromSpeciesUrl(url): string {
 
         <div class="w3-row-padding">
             <section class="w3-col w3-half w3-center w3-margin-bottom">
-                <div class="w3-card w3-padding w3-round">
-                    <h2 class="w3-xxlarge">Stats</h2>
-                    <div class="w3-light-grey w3-round w3-margin-bottom">
-                        <div
-                            class="w3-container w3-round w3-blue"
-                            :style="`width:${pokemonStats.hp / 2}%`">
-                            <span class="w3-text-black">HP&nbsp;|&nbsp;{{ pokemonStats.hp / 2 }}</span>
-                        </div>
-                    </div>
-                    <div class="w3-light-grey w3-round w3-margin-bottom">
-                        <div
-                            class="w3-container w3-round w3-blue"
-                            :style="`width:${pokemonStats.attack / 2}%`">
-                            <span class="w3-text-black">Attack&nbsp;|&nbsp;{{ pokemonStats.attack / 2 }}</span>
-                        </div>
-                    </div>
-                    <div class="w3-light-grey w3-round w3-margin-bottom">
-                        <div
-                            class="w3-container w3-round w3-blue"
-                            :style="`width:${pokemonStats.defense / 2}%`">
-                            <span class="w3-text-black">Defense&nbsp;|&nbsp;{{ pokemonStats.defense / 2 }}</span>
-                        </div>
-                    </div>
-                    <div class="w3-light-grey w3-round w3-margin-bottom">
-                        <div
-                            class="w3-container w3-round w3-blue"
-                            :style="`width:${pokemonStats.specialAttack / 2}%`">
-                            <span class="w3-text-black">Special&nbsp;attack&nbsp;|&nbsp;{{ pokemonStats.specialAttack / 2 }}</span>
-                        </div>
-                    </div>
-                    <div class="w3-light-grey w3-round w3-margin-bottom">
-                        <div
-                            class="w3-container w3-round w3-blue"
-                            :style="`width:${pokemonStats.specialDefense / 2}%`">
-                            <span class="w3-text-black">Special&nbsp;defense&nbsp;|&nbsp;{{ pokemonStats.specialDefense / 2 }}</span>
-                        </div>
-                    </div>
-                    <div class="w3-light-grey w3-round w3-margin-bottom">
-                        <div
-                            class="w3-container w3-round w3-blue"
-                            :style="`width:${pokemonStats.speed / 2}%`">
-                            <span class="w3-text-black">Speed&nbsp;|&nbsp;{{ pokemonStats.speed / 2 }}</span>
-                        </div>
-                    </div>
-                </div>
+                <PokeDetailsStats :pokemonStats="pokemonDetails.stats"></PokeDetailsStats>
             </section>
             <section class="w3-col w3-half w3-center w3-margin-bottom">
                 <div class="w3-card w3-padding w3-round">
