@@ -15,16 +15,14 @@ const pokemonStats = ref({})
 const increasedDmgFrom = ref([])
 const reducedDmgFrom = ref([])
 const pokemonWeaknesses = ref([])
-const isLoading = ref(false)
+const isLoading = ref(true)
+const id = useRoute().params.id
 
 onBeforeRouteUpdate(async (to) => {
     selectedPokemonId.value = +to.params.id
 })
 
 onMounted(async () => {
-    const id = useRoute().params.id
-    isLoading.value = true
-
     axios
         .get(`${API_URL}/pokemon/${id}`)
         .then(response => {
@@ -96,8 +94,6 @@ onMounted(async () => {
             })
         }
     })
-
-
 })
 
 function formatName(pokemon: string): string {
@@ -283,42 +279,42 @@ function getWeightInKilos(weight) {
                         <div
                             class="w3-container w3-round w3-blue"
                             :style="`width:${pokemonStats.hp / 2}%`">
-                            <span class="w3-text-black">HP</span>
+                            <span class="w3-text-black">HP&nbsp;|&nbsp;{{ pokemonStats.hp / 2 }}</span>
                         </div>
                     </div>
                     <div class="w3-light-grey w3-round w3-margin-bottom">
                         <div
                             class="w3-container w3-round w3-blue"
                             :style="`width:${pokemonStats.attack / 2}%`">
-                            <span class="w3-text-black">Attack</span>
+                            <span class="w3-text-black">Attack&nbsp;|&nbsp;{{ pokemonStats.attack / 2 }}</span>
                         </div>
                     </div>
                     <div class="w3-light-grey w3-round w3-margin-bottom">
                         <div
                             class="w3-container w3-round w3-blue"
                             :style="`width:${pokemonStats.defense / 2}%`">
-                            <span class="w3-text-black">Defense</span>
+                            <span class="w3-text-black">Defense&nbsp;|&nbsp;{{ pokemonStats.defense / 2 }}</span>
                         </div>
                     </div>
                     <div class="w3-light-grey w3-round w3-margin-bottom">
                         <div
                             class="w3-container w3-round w3-blue"
                             :style="`width:${pokemonStats.specialAttack / 2}%`">
-                            <span class="w3-text-black">Special&nbsp;attack</span>
+                            <span class="w3-text-black">Special&nbsp;attack&nbsp;|&nbsp;{{ pokemonStats.specialAttack / 2 }}</span>
                         </div>
                     </div>
                     <div class="w3-light-grey w3-round w3-margin-bottom">
                         <div
                             class="w3-container w3-round w3-blue"
                             :style="`width:${pokemonStats.specialDefense / 2}%`">
-                            <span class="w3-text-black">Special&nbsp;defense</span>
+                            <span class="w3-text-black">Special&nbsp;defense&nbsp;|&nbsp;{{ pokemonStats.specialDefense / 2 }}</span>
                         </div>
                     </div>
                     <div class="w3-light-grey w3-round w3-margin-bottom">
                         <div
                             class="w3-container w3-round w3-blue"
                             :style="`width:${pokemonStats.speed / 2}%`">
-                            <span class="w3-text-black">Speed</span>
+                            <span class="w3-text-black">Speed&nbsp;|&nbsp;{{ pokemonStats.speed / 2 }}</span>
                         </div>
                     </div>
                 </div>
@@ -345,33 +341,42 @@ function getWeightInKilos(weight) {
         </div>
 
         <div v-if="pokemonEvolutionChain" class="w3-row-padding">
-            <div class="w3-col w3-center w3-margin-bottom">
-                <div class="w3-card w3-padding">
+            <section class="w3-col w3-center w3-margin-bottom">
+                <div class="w3-card w3-padding w3-round">
                     <h2 class="w3-xxlarge">Evolutions</h2>
-                    <ul class="w3-margin-bottom">
-                        <li v-for="evolution in pokemonEvolutionChain" class="w3-margin">
-                            <router-link
-                                :to="{ name: 'PokeDetails', params: {id: getPokemonNumberFromSpeciesUrl(evolution.species.url)}}"
-                                v-if="evolution.species">
+                    <span v-for="evolution in pokemonEvolutionChain" class="w3-mobile w3-padding" >
+                            <span v-if="evolution.species">
                                 <img
                                     class="w3-circle w3-border w3-hover-border-dark-gray"
                                     :src="getImagePath(getPokemonNumberFromSpeciesUrl(evolution.species.url))"
                                     @error="setAlternativeImage"
                                     style="width: 150px"
                                 >
-                            </router-link>
+                            </span>
                             <span v-else-if="evolution === 'next_level'">
-                            <i class="fa fa-solid fa-chevron-right fa-3x"></i>
+                                <i class="fa fa-solid fa-chevron-right fa-3x hidden-on-mobile"></i>
+                                <i class="fa fa-solid fa-chevron-down fa-3x displayed-on-mobile"></i>
+                            </span>
                         </span>
-                        </li>
-                    </ul>
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 </template>
 
 <style scoped>
+    @media only screen and (max-width: 600px) {
+        .hidden-on-mobile {
+            display: none;
+        }
+    }
+
+    @media only screen and (min-width: 600px) {
+        .displayed-on-mobile {
+            display: none;
+        }
+    }
+
     .capitalized {
         text-transform: capitalize;
     }
