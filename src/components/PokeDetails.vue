@@ -1,12 +1,7 @@
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue";
-import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
+import {onMounted, ref, watch} from "vue";
+import {onBeforeRouteUpdate, useRoute} from "vue-router";
 import axios from 'axios';
-
-declare interface Pokemon {
-    name: string
-    url: string
-}
 
 const API_URL = `https://pokeapi.co/api/v2`
 const IMG_PATH = '/node_modules/pokemon-sprites/sprites/pokemon/other/official-artwork'
@@ -204,6 +199,23 @@ function getPokemonNumberFromSpeciesUrl(url): string {
     return url.substring(url.indexOf(searchTerm) + searchTerm.length, url.length - 1)
 }
 
+function getPokemonFlavorText(species): string {
+    const regex = /\f/g
+    return species.flavor_text_entries.find(text => text.language.name === 'en').flavor_text.replaceAll(regex, ' ')
+}
+
+function getHeightInCentimeters(height) {
+    return height * 10
+}
+
+function getPokemonCategory(generas) {
+    return generas.find(genra => genra.language.name === 'en').genus
+}
+
+function getWeightInKilos(weight) {
+    return weight / 10
+}
+
 </script>
 
 <template>
@@ -211,149 +223,161 @@ function getPokemonNumberFromSpeciesUrl(url): string {
         <i class="fa fa-refresh fa-spin fa-5x"></i>
     </div>
     <div v-if="pokemonDetails && pokemonSpecies && !isLoading">
-        <div class="w3-center pokemon-name">
-            <h1>{{ formatName(pokemonDetails.name) }} (#{{pokemonDetails.id}})</h1>
+        <div class="w3-center capitalized w3-margin-bottom">
+            <h1 class="w3-xxxlarge">{{ formatName(pokemonDetails.name) }} (#{{pokemonDetails.id}})</h1>
         </div>
 
         <div class="w3-row-padding">
-            <div class="w3-col w3-half w3-center" style="border: 1px solid black; ">
-                <img :src="pokemonDetails.sprites.other['official-artwork']?.front_default" style="width: 50%">
-            </div>
-            <div class="w3-col w3-half" style="border: 1px solid black; ">
-                <div class="w3-margin-bottom">
-                    {{ pokemonSpecies.flavor_text_entries[0].flavor_text}}
+            <section class="w3-col w3-half w3-center w3-margin-bottom">
+                <img :src="getImagePath(getPokemonNumberFromSpeciesUrl(pokemonDetails.species.url))" style="width: 50%">
+            </section>
+            <section class="w3-col w3-half w3-margin-bottom">
+                <div class="w3-card w3-padding w3-round">
+                    <div class="w3-margin-bottom">
+                        <span class="w3-large">{{ getPokemonFlavorText(pokemonSpecies) }}</span>
+                    </div>
+                    <div class="w3-row">
+                        <div class="w3-col l6 w3-margin-bottom">
+                            <h3 class="w3-large bold">Height</h3>
+                            <div>{{ getHeightInCentimeters(pokemonDetails.height) }} cm</div>
+                        </div>
+                        <div class="w3-col l6 w3-margin-bottom">
+                            <h3 class="w3-large bold">Category</h3>
+                            <div>{{ getPokemonCategory(pokemonSpecies.genera) }}</div>
+                        </div>
+                        <div class="w3-col l6 w3-margin-bottom">
+                            <h3 class="w3-large bold">Weight</h3>
+                            <div>{{ getWeightInKilos(pokemonDetails.weight) }} kg</div>
+                        </div>
+                        <div class="w3-col l6 w3-margin-bottom">
+                            <h3 class="w3-large bold">Abilities</h3>
+                            <div v-for="ability in pokemonAbilities" class="capitalized">
+                                {{ ability.ability.name }}
+                            </div>
+                        </div>
+                        <div class="w3-col l6 w3-margin-bottom">
+                            <h3 class="w3-large bold">Gender</h3>
+                            <div v-if="pokemonSpecies.gender_rate === -1">
+                                Unknown
+                            </div>
+                            <div v-else-if="pokemonSpecies.gender_rate === 0">
+                                Male only
+                            </div>
+                            <div v-else-if="pokemonSpecies.gender_rate < 8">
+                                Both
+                            </div>
+                            <div v-else-if="pokemonSpecies.gender_rate === 8">
+                                Female only
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="w3-row">
-                    <div class="w3-col l6 w3-margin-bottom">
-                        <div>Height</div>
-                        <div>{{pokemonDetails.height * 10}} cm</div>
-                    </div>
-                    <div class="w3-col l6 w3-margin-bottom">
-                        <div>Category</div>
-                        <div>{{pokemonSpecies.genera[7].genus}}</div>
-                    </div>
-                    <div class="w3-col l6 w3-margin-bottom">
-                        <div>Weight</div>
-                        <div>{{pokemonDetails.weight / 10}} kg</div>
-                    </div>
-                    <div class="w3-col l6 w3-margin-bottom">
-                        <div>Abilities</div>
-                        <div v-for="ability in pokemonAbilities">
-                            {{ ability.ability.name }}
-                        </div>
-                    </div>
-                    <div class="w3-col l6 w3-margin-bottom">
-                        <div>Gender</div>
-                        <div v-if="pokemonSpecies.gender_rate === -1">
-                            Unknown
-                        </div>
-                        <div v-else-if="pokemonSpecies.gender_rate === 0">
-                            Male only
-                        </div>
-                        <div v-else-if="pokemonSpecies.gender_rate === 1">
-                            Both
-                        </div>
-                        <div v-else-if="pokemonSpecies.gender_rate === 8">
-                            Female only
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </section>
         </div>
 
         <div class="w3-row-padding">
-            <div class="w3-half w3-center" style="border: 1px solid black;">
-                <h2>Stats</h2>
-                <div class="w3-light-grey w3-round w3-margin-bottom">
-                    <div
-                        class="w3-container w3-round w3-blue"
-                        :style="`width:${pokemonStats.hp / 2}%`">
-                        {{ pokemonStats.hp }}: HP
+            <section class="w3-col w3-half w3-center w3-margin-bottom">
+                <div class="w3-card w3-padding w3-round">
+                    <h2 class="w3-xxlarge">Stats</h2>
+                    <div class="w3-light-grey w3-round w3-margin-bottom">
+                        <div
+                            class="w3-container w3-round w3-blue"
+                            :style="`width:${pokemonStats.hp / 2}%`">
+                            <span class="w3-text-black">HP</span>
+                        </div>
+                    </div>
+                    <div class="w3-light-grey w3-round w3-margin-bottom">
+                        <div
+                            class="w3-container w3-round w3-blue"
+                            :style="`width:${pokemonStats.attack / 2}%`">
+                            <span class="w3-text-black">Attack</span>
+                        </div>
+                    </div>
+                    <div class="w3-light-grey w3-round w3-margin-bottom">
+                        <div
+                            class="w3-container w3-round w3-blue"
+                            :style="`width:${pokemonStats.defense / 2}%`">
+                            <span class="w3-text-black">Defense</span>
+                        </div>
+                    </div>
+                    <div class="w3-light-grey w3-round w3-margin-bottom">
+                        <div
+                            class="w3-container w3-round w3-blue"
+                            :style="`width:${pokemonStats.specialAttack / 2}%`">
+                            <span class="w3-text-black">Special&nbsp;attack</span>
+                        </div>
+                    </div>
+                    <div class="w3-light-grey w3-round w3-margin-bottom">
+                        <div
+                            class="w3-container w3-round w3-blue"
+                            :style="`width:${pokemonStats.specialDefense / 2}%`">
+                            <span class="w3-text-black">Special&nbsp;defense</span>
+                        </div>
+                    </div>
+                    <div class="w3-light-grey w3-round w3-margin-bottom">
+                        <div
+                            class="w3-container w3-round w3-blue"
+                            :style="`width:${pokemonStats.speed / 2}%`">
+                            <span class="w3-text-black">Speed</span>
+                        </div>
                     </div>
                 </div>
-                <div class="w3-light-grey w3-round w3-margin-bottom">
-                    <div
-                        class="w3-container w3-round w3-blue"
-                        :style="`width:${pokemonStats.attack / 2}%`">
-                        {{ pokemonStats.attack }}: Attack
-                    </div>
-                </div>
-                <div class="w3-light-grey w3-round w3-margin-bottom">
-                    <div
-                        class="w3-container w3-round w3-blue"
-                        :style="`width:${pokemonStats.defense / 2}%`">
-                        {{ pokemonStats.defense }}: Defense
-                    </div>
-                </div>
-                <div class="w3-light-grey w3-round w3-margin-bottom">
-                    <div
-                        class="w3-container w3-round w3-blue"
-                        :style="`width:${pokemonStats.specialAttack / 2}%`">
-                        {{ pokemonStats.specialAttack }}: Special attack
-                    </div>
-                </div>
-                <div class="w3-light-grey w3-round w3-margin-bottom">
-                    <div
-                        class="w3-container w3-round w3-blue"
-                        :style="`width:${pokemonStats.specialDefense / 2}%`">
-                        {{ pokemonStats.specialDefense }}: Special defense
-                    </div>
-                </div>
-                <div class="w3-light-grey w3-round w3-margin-bottom">
-                    <div
-                        class="w3-container w3-round w3-blue"
-                        :style="`width:${pokemonStats.speed / 2}%`">
-                        {{ pokemonStats.speed }}: Speed
-                    </div>
-                </div>
-            </div>
-            <div class="w3-half w3-center" style="border: 1px solid black; ">
-                <h2>Type</h2>
-                <span
-                    v-for="type in pokemonDetails.types"
-                    class="w3-tag w3-large w3-round w3-padding w3-margin-right"
-                    :class="getTypeColorClass(type.type.name)">
+            </section>
+            <section class="w3-col w3-half w3-center w3-margin-bottom">
+                <div class="w3-card w3-padding w3-round">
+                    <h2 class="w3-xxlarge">Type</h2>
+                    <span
+                        v-for="type in pokemonDetails.types"
+                        class="w3-tag w3-large w3-round w3-padding w3-margin-right w3-margin-bottom"
+                        :class="getTypeColorClass(type.type.name)">
                     {{ type.type.name }}
                 </span>
 
-                <h2>Weaknesses</h2>
-                <span
-                    v-for="type in pokemonWeaknesses"
-                    class="w3-tag w3-large w3-round w3-padding w3-margin-right"
-                    :class="getTypeColorClass(type)">
+                    <h2 class="w3-xxlarge">Weaknesses</h2>
+                    <span
+                        v-for="type in pokemonWeaknesses"
+                        class="w3-tag w3-large w3-round w3-padding w3-margin-right w3-margin-bottom"
+                        :class="getTypeColorClass(type)">
                     {{ type }}
                 </span>
-            </div>
+                </div>
+            </section>
         </div>
 
         <div v-if="pokemonEvolutionChain" class="w3-row-padding">
-            <div class="w3-col w3-center" style="border: 1px solid black">
-                <h2>Evolutions</h2>
-                <ul>
-                    <li v-for="evolution in pokemonEvolutionChain">
-                        <router-link
-                            :to="{ name: 'PokeDetails', params: {id: getPokemonNumberFromSpeciesUrl(evolution.species.url)}}"
-                            v-if="evolution.species">
-                            <img
-                                class="w3-image"
-                                :src="getImagePath(getPokemonNumberFromSpeciesUrl(evolution.species.url))"
-                                @error="setAlternativeImage"
-                                style="width: 150px"
-                            >
-                        </router-link>
-                        <span v-else-if="evolution === 'next_level'">
+            <div class="w3-col w3-center w3-margin-bottom">
+                <div class="w3-card w3-padding">
+                    <h2 class="w3-xxlarge">Evolutions</h2>
+                    <ul class="w3-margin-bottom">
+                        <li v-for="evolution in pokemonEvolutionChain" class="w3-margin">
+                            <router-link
+                                :to="{ name: 'PokeDetails', params: {id: getPokemonNumberFromSpeciesUrl(evolution.species.url)}}"
+                                v-if="evolution.species">
+                                <img
+                                    class="w3-circle w3-border w3-hover-border-dark-gray"
+                                    :src="getImagePath(getPokemonNumberFromSpeciesUrl(evolution.species.url))"
+                                    @error="setAlternativeImage"
+                                    style="width: 150px"
+                                >
+                            </router-link>
+                            <span v-else-if="evolution === 'next_level'">
                             <i class="fa fa-solid fa-chevron-right fa-3x"></i>
                         </span>
-                    </li>
-                </ul>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-    .pokemon-name {
+    .capitalized {
         text-transform: capitalize;
+    }
+
+    .bold {
+        font-weight: bold
     }
 
     ul {
@@ -365,5 +389,4 @@ function getPokemonNumberFromSpeciesUrl(url): string {
     li {
         display: inline;
     }
-
 </style>
