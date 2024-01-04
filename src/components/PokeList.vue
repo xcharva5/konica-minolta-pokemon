@@ -1,47 +1,40 @@
 <script setup lang="ts">
 
-import {capitalize, onMounted, ref} from "vue";
-import axios from 'axios';
+import {onMounted, ref} from "vue";
+import {usePokemonsStore} from "../stores/pokemon.ts";
 
-declare interface Pokemon {
+interface Pokemon {
     name: string
     url: string
 }
 
-const API_URL = `https://pokeapi.co/api/v2`
 const IMG_PATH = 'node_modules/pokemon-sprites/sprites/pokemon/other/official-artwork'
-const searchedCount = 1010
-
-const pokemons = ref<Pokemon | null>(null)
-const isLoading = ref<boolean>(false)
+const pokemons = ref<Pokemon[]>([])
+const isLoading = ref(true)
+const store = usePokemonsStore()
 
 onMounted(() => {
-    isLoading.value = true
-
-    /* load all available pokemons */
-    axios
-        .get(`${API_URL}/pokemon/?limit=${searchedCount}`)
-        .then(response => {
-            pokemons.value = response.data.results
-            isLoading.value = false
-        })
-        .catch((err) => console.log(err))
+    store.getPokemons()
+    store.$subscribe((mutation, state) => {
+        pokemons.value = state.pokemons
+        isLoading.value = state.isLoading
+    })
 })
 
-function getImagePath(pokemonNumber: string): string {
+function getImagePath(pokemonNumber) {
     return `${IMG_PATH}/${pokemonNumber}.png`
 }
 
-function getPokemonNumber(pokemon: ref<Pokemon>): string {
+function getPokemonNumber(pokemon) {
     const searchTerm = 'pokemon/'
     return pokemon.url.substring(pokemon.url.indexOf(searchTerm) + searchTerm.length, pokemon.url.length - 1)
 }
 
-function setAlternativeImage(event): void {
+function setAlternativeImage(event) {
     event.target.src = "src/assets/placeholder.png"
 }
 
-function formatName(pokemon: string): string {
+function formatName(pokemon) {
     return pokemon.name.replace('-', ' ')
 }
 
@@ -54,7 +47,7 @@ function formatName(pokemon: string): string {
     <div v-if="pokemons && !isLoading" class="w3-row-padding">
         <div
             v-for="pokemon in pokemons"
-            class="w3-col l2 m4 s6 w3-margin-bottom">
+            class="w3-col l3 m4 s6 w3-margin-bottom">
             <router-link
                 :to="{ name: 'PokeDetails', params: {id: getPokemonNumber(pokemon)}}"
                 class="list-item-link">
