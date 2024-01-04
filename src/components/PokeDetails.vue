@@ -4,6 +4,7 @@ import {onBeforeRouteUpdate, useRoute} from "vue-router";
 import axios from 'axios';
 import PokeDetailsGeneral from "./PokeDetailsGeneral.vue";
 import PokeDetailsStats from "./PokeDetailsStats.vue";
+import PokeDetailsType from "./PokeDetailsType.vue";
 
 const API_URL = `https://pokeapi.co/api/v2`
 const IMG_PATH = '/node_modules/pokemon-sprites/sprites/pokemon/other/official-artwork'
@@ -13,9 +14,6 @@ const pokemonDetails = ref(null)
 const pokemonSpecies = ref(null)
 const pokemonAbilities = ref(null)
 const pokemonEvolutionChain = ref([])
-const increasedDmgFrom = ref([])
-const reducedDmgFrom = ref([])
-const pokemonWeaknesses = ref([])
 const isLoading = ref(true)
 const id = useRoute().params.id
 
@@ -76,23 +74,7 @@ onMounted(async () => {
                     getEvolutions(response.data.chain, 0)
                 })
                 .catch((err) => console.log(err))
-                // .finally(() => (isLoading.value = false))
-        }
-    })
-
-    watch(pokemonDetails, async (details) => {
-        if (details?.types.length) {
-            details.types.forEach(type => {
-                axios
-                    .get(type.type.url)
-                    .then(response => {
-                        getWeaknessesAndStrenghts(response.data)
-                    })
-                    .catch((err) => console.log(err))
-                    .finally(() => {
-                        (isLoading.value = false)
-                    })
-            })
+                .finally(() => (isLoading.value = false))
         }
     })
 })
@@ -107,63 +89,6 @@ function getImagePath(pokemonNumber: string): string {
 
 function setAlternativeImage(event): void {
     event.target.src = "src/assets/placeholder.png"
-}
-
-function getWeaknessesAndStrenghts(type) {
-    let increasedDmg = increasedDmgFrom.value
-    let reducedDmg = reducedDmgFrom.value
-
-    increasedDmg.push(...type.damage_relations.double_damage_from.map(type => type.name))
-    reducedDmg.push(...type.damage_relations.half_damage_from.map(type => type.name))
-
-    /* remove duplicates */
-    increasedDmg = increasedDmg.filter((value, index) => increasedDmg.indexOf(value) === index)
-    reducedDmg = reducedDmg.filter((value, index) => reducedDmg.indexOf(value) === index)
-
-    pokemonWeaknesses.value = increasedDmg.filter(increased => !reducedDmg.includes(increased))
-}
-
-function getTypeColorClass(type) {
-    switch (type) {
-        case 'normal':
-            return 'w3-khaki'
-        case 'fighting':
-            return 'w3-deep-orange'
-        case 'flying':
-            return 'w3-light-blue'
-        case 'poison':
-            return 'w3-purple'
-        case 'ground':
-            return 'w3-brown'
-        case 'rock':
-            return 'w3-pale-yellow'
-        case 'bug':
-            return 'w3-lime'
-        case 'ghost':
-            return 'w3-deep-purple'
-        case 'steel':
-            return 'w3-light-gray'
-        case 'stellar':
-            return 'w3-teal'
-        case 'fire':
-            return 'w3-orange'
-        case 'water':
-            return 'w3-blue'
-        case 'grass':
-            return 'w3-green'
-        case 'electric':
-            return 'w3-yellow'
-        case 'psychic':
-            return 'w3-pink'
-        case 'ice':
-            return 'w3-aqua'
-        case 'dragon':
-            return 'w3-indigo'
-        case 'dark':
-            return 'w3-dark-gray'
-        case 'fairy':
-            return 'w3-pale-red'
-    }
 }
 
 function getEvolutions(chain, level) {
@@ -191,7 +116,7 @@ function getPokemonNumberFromSpeciesUrl(url): string {
     <div v-if="isLoading" class="w3-display-middle">
         <i class="fa fa-refresh fa-spin fa-5x"></i>
     </div>
-    <div v-if="pokemonDetails && pokemonSpecies && !isLoading">
+    <div v-if="pokemonDetails && pokemonSpecies && pokemonAbilities && !isLoading">
         <div class="w3-center capitalized w3-margin-bottom">
             <h1 class="w3-xxxlarge">{{ formatName(pokemonDetails.name) }} (#{{pokemonDetails.id}})</h1>
         </div>
@@ -214,23 +139,7 @@ function getPokemonNumberFromSpeciesUrl(url): string {
                 <PokeDetailsStats :pokemonStats="pokemonDetails.stats"></PokeDetailsStats>
             </section>
             <section class="w3-col w3-half w3-center w3-margin-bottom">
-                <div class="w3-card w3-padding w3-round">
-                    <h2 class="w3-xxlarge">Type</h2>
-                    <span
-                        v-for="type in pokemonDetails.types"
-                        class="w3-tag w3-large w3-round w3-padding w3-margin-right w3-margin-bottom"
-                        :class="getTypeColorClass(type.type.name)">
-                    {{ type.type.name }}
-                </span>
-
-                    <h2 class="w3-xxlarge">Weaknesses</h2>
-                    <span
-                        v-for="type in pokemonWeaknesses"
-                        class="w3-tag w3-large w3-round w3-padding w3-margin-right w3-margin-bottom"
-                        :class="getTypeColorClass(type)">
-                    {{ type }}
-                </span>
-                </div>
+                <PokeDetailsType :pokemonDetails="pokemonDetails"></PokeDetailsType>
             </section>
         </div>
 
