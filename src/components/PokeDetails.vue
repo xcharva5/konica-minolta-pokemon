@@ -17,52 +17,46 @@ const pokemonAbilities = ref(null)
 const isLoading = ref(true)
 const id = useRoute().params.id
 
-onBeforeRouteUpdate(async (to) => {
-    selectedPokemonId.value = +to.params.id
+onBeforeRouteUpdate(async (url) => {
+    selectedPokemonId.value = +url.params.id
 })
 
 onMounted(async () => {
+    loadData(id)
+
+    watch(selectedPokemonId, async (newId) => {
+        if (newId) {
+            loadData(newId)
+        }
+    })
+})
+
+function loadData(currentId) {
+    isLoading.value = true
+    pokemonDetails.value = null
+    pokemonSpecies.value = null
+    pokemonAbilities.value = null
+
     axios
-        .get(`${API_URL}/pokemon/${id}`)
+        .get(`${API_URL}/pokemon/${currentId}`)
         .then(response => {
             pokemonDetails.value = response.data
             pokemonAbilities.value = response.data.abilities.filter(ability => ability.is_hidden === false)
         })
-        .catch((err) => console.log(err))
-    // .finally(() => (isLoading.value = false))
+        .catch((err) => {
+            console.log(err)
+            isLoading.value = false
+        })
 
     axios
         .get(`${API_URL}/pokemon-species/${id}`)
-        .then(response => {
-            pokemonSpecies.value = response.data
+        .then(response => pokemonSpecies.value = response.data)
+        .catch((err) => {
+            console.log(err)
+            isLoading.value = false
         })
-        .catch((err) => console.log(err))
-    .finally(() => (isLoading.value = false))
-
-    watch(selectedPokemonId, async (id) => {
-        if (id) {
-            isLoading.value = true
-            pokemonDetails.value = null
-
-            axios
-                .get(`${API_URL}/pokemon/${id}`)
-                .then(response => {
-                    pokemonDetails.value = response.data
-                    pokemonAbilities.value = response.data.abilities.filter(ability => ability.is_hidden === false)
-                })
-                .catch((err) => console.log(err))
-            // .finally(() => (isLoading.value = false))
-
-            axios
-                .get(`${API_URL}/pokemon-species/${id}`)
-                .then(response => {
-                    pokemonSpecies.value = response.data
-                })
-                .catch((err) => console.log(err))
-            .finally(() => (isLoading.value = false))
-        }
-    })
-})
+        .finally(() => isLoading.value = false)
+}
 
 function formatName(pokemon: string): string {
     return pokemon.replace('-', ' ')
