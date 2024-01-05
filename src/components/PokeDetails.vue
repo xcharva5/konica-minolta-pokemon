@@ -1,62 +1,43 @@
 <script setup lang="ts">
-import {onMounted, ref, watch} from "vue";
+import {onMounted, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute} from "vue-router";
-import axios from 'axios';
 import PokeDetailsGeneral from "./PokeDetailsGeneral.vue";
 import PokeDetailsStats from "./PokeDetailsStats.vue";
 import PokeDetailsType from "./PokeDetailsType.vue";
 import PokeDetailsEvolutions from "./PokeDetailsEvolutions.vue";
+import {usePokemonDetailStore} from "../stores/pokemon-detail.ts";
 
-const API_URL = `https://pokeapi.co/api/v2`
 const IMG_PATH = '/node_modules/pokemon-sprites/sprites/pokemon/other/official-artwork'
 
-const selectedPokemonId = ref(0)
-const pokemonDetails = ref(null)
-const pokemonSpecies = ref(null)
-const pokemonAbilities = ref(null)
-const isLoading = ref(true)
 const id = useRoute().params.id
+const store = usePokemonDetailStore()
+
+const selectedPokemonId = ref<string | null>(null)
+const pokemonDetails = ref<PokemonDetails | null>(null)
+const pokemonAbilities = ref<Ability[] | null>(null)
+const pokemonSpecies = ref<PokemonSpecies| null>(null)
+const isLoadingDetails = ref<boolean>(true)
+const isLoadingSpecies = ref<boolean>(true)
 
 onBeforeRouteUpdate(async (url) => {
-    selectedPokemonId.value = +url.params.id
+    store.selectedPokemonId = url.params.id.toString()
+    await store.getPokemonById(id.toString())
+    await store.getPokemonSpeciesById(id.toString())
 })
 
 onMounted(async () => {
-    loadData(id)
+    await store.getPokemonById(id.toString())
+    await store.getPokemonSpeciesById(id.toString())
 
-    watch(selectedPokemonId, async (newId) => {
-        if (newId) {
-            loadData(newId)
-        }
+    store.$subscribe((mutation, state) => {
+        selectedPokemonId.value = state.selectedPokemonId
+        pokemonDetails.value = state.pokemonDetails
+        pokemonAbilities.value = store.pokemonAbilities
+        pokemonSpecies.value = store.pokemonSpecies
+        isLoadingDetails.value = state.isLoadingDetails
+        isLoadingSpecies.value = state.isLoadingSpecies
     })
 })
-
-function loadData(currentId) {
-    isLoading.value = true
-    pokemonDetails.value = null
-    pokemonSpecies.value = null
-    pokemonAbilities.value = null
-
-    axios
-        .get(`${API_URL}/pokemon/${currentId}`)
-        .then(response => {
-            pokemonDetails.value = response.data
-            pokemonAbilities.value = response.data.abilities.filter(ability => ability.is_hidden === false)
-        })
-        .catch((err) => {
-            console.log(err)
-            isLoading.value = false
-        })
-
-    axios
-        .get(`${API_URL}/pokemon-species/${id}`)
-        .then(response => pokemonSpecies.value = response.data)
-        .catch((err) => {
-            console.log(err)
-            isLoading.value = false
-        })
-        .finally(() => isLoading.value = false)
-}
 
 function formatName(pokemon: string): string {
     return pokemon.replace('-', ' ')
@@ -74,10 +55,10 @@ function getPokemonNumberFromSpeciesUrl(url): string {
 </script>
 
 <template>
-    <div v-if="isLoading" class="w3-display-middle">
+    <div v-if="isLoadingDetails || isLoadingSpecies" class="w3-display-middle">
         <i class="fa fa-refresh fa-spin fa-5x"></i>
     </div>
-    <div v-if="pokemonDetails && pokemonSpecies && pokemonAbilities && !isLoading">
+    <div v-if="pokemonDetails && pokemonSpecies && pokemonAbilities && !isLoadingDetails && !isLoadingSpecies">
         <div class="w3-center capitalized w3-margin-bottom">
             <h1 class="w3-xxxlarge">{{ formatName(pokemonDetails.name) }} (#{{pokemonDetails.id}})</h1>
         </div>

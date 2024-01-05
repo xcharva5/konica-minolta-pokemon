@@ -1,23 +1,18 @@
 <script setup lang="ts">
 
 import {onMounted, ref} from "vue";
-import {usePokemonsStore} from "../stores/pokemon.ts";
-
-interface Pokemon {
-    name: string
-    url: string
-}
+import { usePokemonListStore } from "../stores/pokemon-list.ts";
 
 const IMG_PATH = 'node_modules/pokemon-sprites/sprites/pokemon/other/official-artwork'
-const pokemons = ref<Pokemon[]>([])
+const pokemons = ref<BaseObject[]>([])
 const isLoading = ref(true)
-const store = usePokemonsStore()
+const store = usePokemonListStore()
 
 onMounted(() => {
     store.getPokemons()
     store.$subscribe((mutation, state) => {
         pokemons.value = state.pokemons
-        isLoading.value = state.isLoading
+        isLoading.value = state.isLoadingList
     })
 })
 
