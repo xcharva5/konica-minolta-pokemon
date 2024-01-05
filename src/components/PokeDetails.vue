@@ -60,12 +60,15 @@ function getPokemonNumberFromSpeciesUrl(url): string {
     </div>
     <div v-if="pokemonDetails && pokemonSpecies && pokemonAbilities && !isLoadingDetails && !isLoadingSpecies">
         <div class="w3-center capitalized w3-margin-bottom">
-            <h1 class="w3-xxxlarge">{{ formatName(pokemonDetails.name) }} (#{{pokemonDetails.id}})</h1>
+            <h1 class="w3-xxxlarge">{{ formatName(pokemonDetails['name']) }} (#{{pokemonDetails['id']}})</h1>
         </div>
 
         <div class="w3-row-padding">
             <section class="w3-col w3-half w3-center w3-margin-bottom">
-                <img :src="getImagePath(getPokemonNumberFromSpeciesUrl(pokemonDetails.species.url))" style="width: 50%">
+                <img
+                    :src="getImagePath(getPokemonNumberFromSpeciesUrl(pokemonDetails['species'].url))"
+                    :alt="`${pokemonDetails['name']} image`"
+                    style="width: 50%">
             </section>
             <section class="w3-col w3-half w3-margin-bottom">
                 <PokeDetailsGeneral
@@ -78,7 +81,7 @@ function getPokemonNumberFromSpeciesUrl(url): string {
 
         <div class="w3-row-padding">
             <section class="w3-col w3-half w3-center w3-margin-bottom">
-                <PokeDetailsStats :pokemonStats="pokemonDetails.stats"></PokeDetailsStats>
+                <PokeDetailsStats :pokemonStats="pokemonDetails['stats']"></PokeDetailsStats>
             </section>
             <section class="w3-col w3-half w3-center w3-margin-bottom">
                 <PokeDetailsType :pokemonDetails="pokemonDetails"></PokeDetailsType>
