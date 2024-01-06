@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute} from "vue-router";
-import PokeDetailsGeneral from "./PokeDetailsGeneral.vue";
-import PokeDetailsStats from "./PokeDetailsStats.vue";
-import PokeDetailsType from "./PokeDetailsType.vue";
-import PokeDetailsEvolutions from "./PokeDetailsEvolutions.vue";
+import PokeDetailsGeneral from "./poke-details-general.vue";
+import PokeDetailsStats from "./poke-details-stats.vue";
+import PokeDetailsType from "./poke-details-type.vue";
+import PokeDetailsEvolutions from "./poke-details-evolutions.vue";
 import {usePokemonDetailStore} from "../stores/pokemon-detail.ts";
 
 const IMG_PATH = '/node_modules/pokemon-sprites/sprites/pokemon/other/official-artwork'
