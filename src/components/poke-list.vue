@@ -1,36 +1,38 @@
-<script setup lang="ts">
+<script lang="ts">
 
-import {onMounted, ref} from "vue";
 import { usePokemonListStore } from "../stores/pokemon-list.ts";
 
-const IMG_PATH = 'node_modules/pokemon-sprites/sprites/pokemon/other/official-artwork'
-const pokemons = ref<BaseObject[]>([])
-const isLoading = ref(true)
-const store = usePokemonListStore()
-
-onMounted(() => {
-    store.getPokemons()
-    store.$subscribe((mutation, state) => {
-        pokemons.value = state.pokemons
-        isLoading.value = state.isLoadingList
-    })
-})
-
-function getImagePath(pokemonNumber) {
-    return `${IMG_PATH}/${pokemonNumber}.png`
-}
-
-function getPokemonNumber(pokemon) {
-    const searchTerm = 'pokemon/'
-    return pokemon.url.substring(pokemon.url.indexOf(searchTerm) + searchTerm.length, pokemon.url.length - 1)
-}
-
-function setAlternativeImage(event) {
-    event.target.src = "src/assets/placeholder.png"
-}
-
-function formatName(pokemon) {
-    return pokemon.name.replace('-', ' ')
+export default {
+    data() {
+        return {
+            IMG_PATH: 'node_modules/pokemon-sprites/sprites/pokemon/other/official-artwork' as string,
+            pokemons: [] as BaseObject[],
+            isLoading: true as boolean,
+            store: usePokemonListStore(),
+        }
+    },
+    methods: {
+        getImagePath(pokemonNumber: string): string {
+            return `${this.IMG_PATH}/${pokemonNumber}.png`;
+        },
+        getPokemonNumber(pokemon: BaseObject): string {
+            const searchTerm = 'pokemon/';
+            return pokemon.url.substring(pokemon.url.indexOf(searchTerm) + searchTerm.length, pokemon.url.length - 1);
+        },
+        setAlternativeImage(event): void {
+            event.target.src = "src/assets/placeholder.png"
+        },
+        formatName(pokemon: BaseObject): string {
+            return pokemon.name.replace('-', ' ');
+        }
+    },
+    mounted() {
+        this.store.getPokemons()
+        this.store.$subscribe((mutation, state) => {
+            this.pokemons = state.pokemons
+            this.isLoading = state.isLoadingList
+        })
+    }
 }
 
 </script>

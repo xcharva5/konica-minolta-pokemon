@@ -1,57 +1,57 @@
-<script setup lang="ts">
-import {onMounted, ref} from "vue";
-import {onBeforeRouteUpdate, useRoute} from "vue-router";
+<script lang="ts">
+import {useRoute} from "vue-router";
+import {usePokemonDetailStore} from "../stores/pokemon-detail.ts";
 import PokeDetailsGeneral from "./poke-details-general.vue";
 import PokeDetailsStats from "./poke-details-stats.vue";
 import PokeDetailsType from "./poke-details-type.vue";
 import PokeDetailsEvolutions from "./poke-details-evolutions.vue";
-import {usePokemonDetailStore} from "../stores/pokemon-detail.ts";
 
-const IMG_PATH = '/node_modules/pokemon-sprites/sprites/pokemon/other/official-artwork'
+export default {
+    components: {PokeDetailsEvolutions, PokeDetailsType, PokeDetailsStats, PokeDetailsGeneral},
+    data() {
+        return {
+            IMG_PATH: '/node_modules/pokemon-sprites/sprites/pokemon/other/official-artwork' as string,
+            id: useRoute().params.id,
+            store: usePokemonDetailStore(),
+            selectedPokemonId: null as string | null,
+            pokemonDetails: null as PokemonDetails | null,
+            pokemonAbilities: [] as Ability[],
+            pokemonSpecies: null as PokemonSpecies | null,
+            isLoadingDetails: true as boolean,
+            isLoadingSpecies: true as boolean,
+        }
+    },
+    async beforeRouteUpdate(url) {
+        this.store.selectedPokemonId = url.params.id.toString();
+        await this.store.getPokemonById(this.id.toString());
+        await this.store.getPokemonSpeciesById(this.id.toString());
+    },
+    async mounted() {
+        await this.store.getPokemonById(this.id.toString());
+        await this.store.getPokemonSpeciesById(this.id.toString());
 
-const id = useRoute().params.id
-const store = usePokemonDetailStore()
-
-const selectedPokemonId = ref<string | null>(null)
-const pokemonDetails = ref<PokemonDetails | null>(null)
-const pokemonAbilities = ref<Ability[] | null>(null)
-const pokemonSpecies = ref<PokemonSpecies| null>(null)
-const isLoadingDetails = ref<boolean>(true)
-const isLoadingSpecies = ref<boolean>(true)
-
-onBeforeRouteUpdate(async (url) => {
-    store.selectedPokemonId = url.params.id.toString()
-    await store.getPokemonById(id.toString())
-    await store.getPokemonSpeciesById(id.toString())
-})
-
-onMounted(async () => {
-    await store.getPokemonById(id.toString())
-    await store.getPokemonSpeciesById(id.toString())
-
-    store.$subscribe((mutation, state) => {
-        selectedPokemonId.value = state.selectedPokemonId
-        pokemonDetails.value = state.pokemonDetails
-        pokemonAbilities.value = store.pokemonAbilities
-        pokemonSpecies.value = store.pokemonSpecies
-        isLoadingDetails.value = state.isLoadingDetails
-        isLoadingSpecies.value = state.isLoadingSpecies
-    })
-})
-
-function formatName(pokemon: string): string {
-    return pokemon.replace('-', ' ')
+        this.store.$subscribe((mutation, state) => {
+            this.selectedPokemonId = state.selectedPokemonId;
+            this.pokemonDetails = state.pokemonDetails;
+            this.pokemonAbilities = this.store.pokemonAbilities;
+            this.pokemonSpecies = this.store.pokemonSpecies;
+            this.isLoadingDetails = state.isLoadingDetails;
+            this.isLoadingSpecies = state.isLoadingSpecies;
+        })
+    },
+    methods: {
+        formatName(name: string): string {
+            return name.replace('-', ' ');
+        },
+        getImagePath(pokemonNumber: string): string {
+            return `${this.IMG_PATH}/${pokemonNumber}.png`;
+        },
+        getPokemonNumberFromSpeciesUrl(url: string): string {
+            const searchTerm = 'pokemon-species/';
+            return url.substring(url.indexOf(searchTerm) + searchTerm.length, url.length - 1);
+        }
+    }
 }
-
-function getImagePath(pokemonNumber: string): string {
-    return `${IMG_PATH}/${pokemonNumber}.png`
-}
-
-function getPokemonNumberFromSpeciesUrl(url): string {
-    const searchTerm = 'pokemon-species/'
-    return url.substring(url.indexOf(searchTerm) + searchTerm.length, url.length - 1)
-}
-
 </script>
 
 <template>
@@ -60,14 +60,14 @@ function getPokemonNumberFromSpeciesUrl(url): string {
     </div>
     <div v-if="pokemonDetails && pokemonSpecies && pokemonAbilities && !isLoadingDetails && !isLoadingSpecies">
         <div class="w3-center capitalized w3-margin-bottom">
-            <h1 class="w3-xxxlarge">{{ formatName(pokemonDetails['name']) }} (#{{pokemonDetails['id']}})</h1>
+            <h1 class="w3-xxxlarge">{{ formatName(pokemonDetails.name) }} (#{{pokemonDetails.id}})</h1>
         </div>
 
         <div class="w3-row-padding">
-            <section class="w3-col w3-half w3-center w3-margin-bottom">
+            <section v-if="pokemonDetails" class="w3-col w3-half w3-center w3-margin-bottom">
                 <img
-                    :src="getImagePath(getPokemonNumberFromSpeciesUrl(pokemonDetails['species'].url))"
-                    :alt="`${pokemonDetails['name']} image`"
+                    :src="getImagePath(getPokemonNumberFromSpeciesUrl(pokemonDetails.species.url))"
+                    :alt="`${pokemonDetails.name} image`"
                     style="width: 50%">
             </section>
             <section class="w3-col w3-half w3-margin-bottom">
@@ -80,8 +80,8 @@ function getPokemonNumberFromSpeciesUrl(url): string {
         </div>
 
         <div class="w3-row-padding">
-            <section class="w3-col w3-half w3-center w3-margin-bottom">
-                <PokeDetailsStats :pokemonStats="pokemonDetails['stats']"></PokeDetailsStats>
+            <section v-if="pokemonDetails" class="w3-col w3-half w3-center w3-margin-bottom">
+                <PokeDetailsStats :pokemonStats="pokemonDetails?.stats"></PokeDetailsStats>
             </section>
             <section class="w3-col w3-half w3-center w3-margin-bottom">
                 <PokeDetailsType :pokemonDetails="pokemonDetails"></PokeDetailsType>

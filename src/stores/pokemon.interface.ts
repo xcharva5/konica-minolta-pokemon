@@ -138,3 +138,48 @@ interface PokemonSpecies {
     genera: Genera[],
     varieties: Variety[],
 }
+
+interface EvolutionChainWrapper {
+    baby_trigger_item: {},
+    chain: EvolutionChain,
+    id: number,
+}
+
+interface EvolutionChain {
+    evolution_details: [],
+    evolves_to: EvolutionChain[],
+    is_baby: boolean,
+    species: BaseObject,
+}
+
+interface CalculatedStats {
+    hp: number,
+    attack: number,
+    defense: number,
+    specialAttack: number,
+    specialDefense: number,
+    speed: number,
+}
+
+interface PokemonType {
+    id: number,
+    name: string,
+    damage_relations: TypeRelations,
+    past_damage_relations: [],
+    game_indices: [],
+    generation: BaseObject,
+    move_damage_class: BaseObject,
+    names: [],
+    pokemon: [],
+    moves: [],
+}
+
+interface TypeRelations {
+    no_damage_to: BaseObject[],
+    half_damage_to: BaseObject[],
+    double_damage_to: BaseObject[],
+    no_damage_from: BaseObject[],
+    half_damage_from: BaseObject[],
+    double_damage_from: BaseObject[],
+
+}

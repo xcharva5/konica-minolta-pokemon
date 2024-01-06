@@ -11,6 +11,7 @@ export const usePokemonListStore = defineStore({
         pokemons: [] as BaseObject[],
     }),
     actions: {
+        /* this should be excluded to a service, but for this purpose... */
         async getPokemons() {
             this.isLoadingList = true
             axios

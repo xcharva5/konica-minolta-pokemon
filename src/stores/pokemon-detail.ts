@@ -17,6 +17,7 @@ export const usePokemonDetailStore = defineStore({
             .filter(ability => !ability.is_hidden)
     },
     actions: {
+        /* these should be excluded to a service, but for this purpose... */
         async getPokemonById(id: string) {
             const currentId = this.selectedPokemonId ?? id
             this.isLoadingDetails = true
