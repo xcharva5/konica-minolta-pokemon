@@ -39,6 +39,9 @@ export default {
             this.isLoadingSpecies = state.isLoadingSpecies;
         })
     },
+    async unmounted() {
+        this.store.selectedPokemonId = null;
+    },
     methods: {
         formatName(name: string): string {
             return name.replace('-', ' ');

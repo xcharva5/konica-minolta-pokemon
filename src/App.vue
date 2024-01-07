@@ -3,7 +3,7 @@ export default {};
 </script>
 
 <template>
-    <header class="w3-container w3-center w3-margin-bottom">
+    <header class="w3-container w3-center w3-margin-bottom w3-margin-top">
         <div class="logo-wrapper">
             <router-link :to="{ name: 'PokeList'}">
                 <img src="./assets/logo.png" alt="PokemonList logo" class="logo">
