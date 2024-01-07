@@ -1,9 +1,11 @@
 <script lang="ts">
+import {PropType} from "vue";
+
 export default {
     props: {
-        pokemonDetails: null as PokemonDetails | null,
-        pokemonSpecies: null as PokemonSpecies | null,
-        pokemonAbilities: [] as Ability[],
+        pokemonDetails: null as PropType<PokemonDetails | null>,
+        pokemonSpecies: null as PropType<PokemonSpecies | null>,
+        pokemonAbilities: [] as PropType<Ability[]>,
     },
     methods: {
         getPokemonFlavorText(species: PokemonSpecies): string {

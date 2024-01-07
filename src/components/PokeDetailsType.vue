@@ -1,10 +1,11 @@
 <script lang="ts">
   import axios from "axios";
+  import {PropType} from "vue";
 
   export default {
       name: 'PokeDetailsType',
       props: {
-          pokemonDetails: null as PokemonDetails | null,
+          pokemonDetails: null as PropType<PokemonDetails | null>,
       },
       data() {
           return {

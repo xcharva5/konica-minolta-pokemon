@@ -1,8 +1,8 @@
 import PokeList from '../components/PokeList.vue';
 import PokeDetails from '../components/PokeDetails.vue';
-import {createRouter, createWebHistory} from "vue-router";
+import {createRouter, createWebHistory, RouteRecordRaw, RouterOptions} from "vue-router";
 
-const routes = [
+const routes: RouteRecordRaw[] = [
     { path: '/:pathMatch(.*)*', redirect: '/' },
     { path: '', name: 'PokeList', component: PokeList },
     { path: '/details/:id', name: 'PokeDetails', component: PokeDetails }

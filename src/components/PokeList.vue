@@ -28,7 +28,7 @@ export default {
     },
     mounted() {
         this.store.getPokemons()
-        this.store.$subscribe((mutation, state) => {
+        this.store.$subscribe((_mutation, state) => {
             this.pokemons = state.pokemons
             this.isLoading = state.isLoadingList
         })

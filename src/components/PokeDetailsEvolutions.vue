@@ -1,9 +1,10 @@
 <script lang="ts">
   import axios, {AxiosResponse} from "axios";
+  import {PropType} from "vue";
 
   export default {
       props: {
-          pokemonSpecies: {} as PokemonSpecies
+          pokemonSpecies: {} as PropType<PokemonSpecies>
       },
       data() {
           return {

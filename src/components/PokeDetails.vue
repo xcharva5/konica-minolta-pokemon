@@ -30,7 +30,7 @@ export default {
         await this.store.getPokemonById(this.id.toString());
         await this.store.getPokemonSpeciesById(this.id.toString());
 
-        this.store.$subscribe((mutation, state) => {
+        this.store.$subscribe((_mutation, state) => {
             this.selectedPokemonId = state.selectedPokemonId;
             this.pokemonDetails = state.pokemonDetails;
             this.pokemonAbilities = this.store.pokemonAbilities;

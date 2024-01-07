@@ -1,8 +1,10 @@
 <script lang="ts">
 
+import {PropType} from "vue";
+
 export default {
     props: {
-        pokemonStats: [] as Stat[]
+        pokemonStats: [] as PropType<Stat[]>
     },
     computed: {
         calculatedStats(): CalculatedStats {
