@@ -8,7 +8,7 @@
       },
       data() {
           return {
-              IMG_PATH: '/node_modules/pokemon-sprites/sprites/pokemon/other/official-artwork' as string,
+              IMG_PATH: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork' as string,
               pokemonEvolutionChain: [],
           }
       },
@@ -48,7 +48,7 @@
               return `${this.IMG_PATH}/${pokemonNumber}.png`;
           },
           setAlternativeImage(event): void {
-              event.target.src = "src/assets/placeholder.png";
+              event.target.src = "/src/assets/placeholder.png";
           }
       }
   }

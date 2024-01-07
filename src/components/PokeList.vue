@@ -5,7 +5,7 @@ import { usePokemonListStore } from "../stores/pokemon-list.ts";
 export default {
     data() {
         return {
-            IMG_PATH: 'node_modules/pokemon-sprites/sprites/pokemon/other/official-artwork' as string,
+            IMG_PATH: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork' as string,
             pokemons: [] as BaseObject[],
             isLoading: true as boolean,
             store: usePokemonListStore(),
@@ -20,7 +20,7 @@ export default {
             return pokemon.url.substring(pokemon.url.indexOf(searchTerm) + searchTerm.length, pokemon.url.length - 1);
         },
         setAlternativeImage(event): void {
-            event.target.src = "src/assets/placeholder.png"
+            event.target.src = "/src/assets/placeholder.png"
         },
         formatName(pokemon: BaseObject): string {
             return pokemon.name.replace('-', ' ');
@@ -54,6 +54,11 @@ export default {
                         :alt='pokemon.name'
                         @error="setAlternativeImage"
                         class="w3-image w3-padding">
+                    <img
+                        src="./../assets/placeholder.png"
+                        alt="Placeholder"
+                        class="w3-image w3-padding w3-hide"
+                    >
                     <div class="w3-container w3-center pokemon-name-wrapper">
                         <p class="pokemon-name">{{formatName(pokemon)}} (#{{ getPokemonNumber(pokemon) }})</p>
                     </div>
