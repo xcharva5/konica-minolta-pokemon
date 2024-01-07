@@ -2,6 +2,7 @@
   import axios from "axios";
 
   export default {
+      name: 'PokeDetailsType',
       props: {
           pokemonDetails: null as PokemonDetails | null,
       },
@@ -92,21 +93,25 @@
 
 <template>
     <div v-if="pokemonDetails" class="w3-card w3-padding w3-round">
-        <h2 class="w3-xxlarge">Type</h2>
-        <span
-            v-for="type in pokemonDetails.types"
-            class="w3-tag w3-large w3-round w3-padding w3-margin-right w3-margin-bottom"
-            :class="getTypeColorClass(type.type.name)">
-            {{ type.type.name }}
-        </span>
+        <div class="pokemon-types">
+            <h2 class="w3-xxlarge">Type</h2>
+            <span
+                v-for="type in pokemonDetails.types"
+                class="w3-tag w3-large w3-round w3-padding w3-margin-right w3-margin-bottom"
+                :class="getTypeColorClass(type.type.name)">
+                {{ type.type.name }}
+            </span>
+        </div>
 
-        <h2 class="w3-xxlarge">Weaknesses</h2>
-        <span
-            v-for="type in pokemonWeaknesses"
-            class="w3-tag w3-large w3-round w3-padding w3-margin-right w3-margin-bottom"
-            :class="getTypeColorClass(type)">
-            {{ type }}
-        </span>
+        <div class="pokemon-weaknesses">
+            <h2 class="w3-xxlarge">Weaknesses</h2>
+            <span
+                v-for="type in pokemonWeaknesses"
+                class="w3-tag w3-large w3-round w3-padding w3-margin-right w3-margin-bottom"
+                :class="getTypeColorClass(type)">
+                {{ type }}
+            </span>
+        </div>
     </div>
 </template>
 

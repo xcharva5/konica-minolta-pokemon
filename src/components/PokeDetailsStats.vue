@@ -31,42 +31,42 @@ export default {
             <div
                 class="w3-container w3-round w3-blue"
                 :style="`width:${calculatedStats.hp}%`">
-                <span class="w3-text-black">HP&nbsp;|&nbsp;{{ calculatedStats.hp }}</span>
+                <span class="w3-text-black" id="hp-value">HP&nbsp;|&nbsp;{{ calculatedStats.hp }}</span>
             </div>
         </div>
         <div class="w3-light-grey w3-round w3-margin-bottom">
             <div
                 class="w3-container w3-round w3-blue"
                 :style="`width:${calculatedStats.attack}%`">
-                <span class="w3-text-black">Attack&nbsp;|&nbsp;{{ calculatedStats.attack }}</span>
+                <span class="w3-text-black" id="attack-value">Attack&nbsp;|&nbsp;{{ calculatedStats.attack }}</span>
             </div>
         </div>
         <div class="w3-light-grey w3-round w3-margin-bottom">
             <div
                 class="w3-container w3-round w3-blue"
                 :style="`width:${calculatedStats.defense}%`">
-                <span class="w3-text-black">Defense&nbsp;|&nbsp;{{ calculatedStats.defense }}</span>
+                <span class="w3-text-black" id="defense-value">Defense&nbsp;|&nbsp;{{ calculatedStats.defense }}</span>
             </div>
         </div>
         <div class="w3-light-grey w3-round w3-margin-bottom">
             <div
                 class="w3-container w3-round w3-blue"
                 :style="`width:${calculatedStats.specialAttack}%`">
-                <span class="w3-text-black">Special&nbsp;attack&nbsp;|&nbsp;{{ calculatedStats.specialAttack }}</span>
+                <span class="w3-text-black" id="special-attack-value">Special&nbsp;attack&nbsp;|&nbsp;{{ calculatedStats.specialAttack }}</span>
             </div>
         </div>
         <div class="w3-light-grey w3-round w3-margin-bottom">
             <div
                 class="w3-container w3-round w3-blue"
                 :style="`width:${calculatedStats.specialDefense}%`">
-                <span class="w3-text-black">Special&nbsp;defense&nbsp;|&nbsp;{{ calculatedStats.specialDefense }}</span>
+                <span class="w3-text-black" id="special-defense-value">Special&nbsp;defense&nbsp;|&nbsp;{{ calculatedStats.specialDefense }}</span>
             </div>
         </div>
         <div class="w3-light-grey w3-round w3-margin-bottom">
             <div
                 class="w3-container w3-round w3-blue"
                 :style="`width:${calculatedStats.speed }%`">
-                <span class="w3-text-black">Speed&nbsp;|&nbsp;{{ calculatedStats.speed }}</span>
+                <span class="w3-text-black" id="speed-value">Speed&nbsp;|&nbsp;{{ calculatedStats.speed }}</span>
             </div>
         </div>
     </div>

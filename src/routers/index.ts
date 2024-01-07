@@ -1,5 +1,5 @@
-import PokeList from '../components/poke-list.vue';
-import PokeDetails from '../components/poke-details.vue';
+import PokeList from '../components/PokeList.vue';
+import PokeDetails from '../components/PokeDetails.vue';
 import {createRouter, createWebHistory} from "vue-router";
 
 const routes = [

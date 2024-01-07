@@ -28,26 +28,26 @@ export default {
 <template>
     <div v-if="pokemonDetails && pokemonSpecies && pokemonAbilities" class="w3-card w3-padding w3-round">
         <div class="w3-margin-bottom">
-            <span class="w3-large">{{ getPokemonFlavorText(pokemonSpecies) }}</span>
+            <span class="w3-large pokemon-flavor-text">{{ getPokemonFlavorText(pokemonSpecies) }}</span>
         </div>
         <div class="w3-row">
             <div class="w3-col l6 w3-margin-bottom">
                 <h3 class="w3-large bold">Height</h3>
-                <div>{{ getHeightInCentimeters(pokemonDetails.height) }} cm</div>
+                <span class="pokemon-height">{{ getHeightInCentimeters(pokemonDetails.height) }} cm</span>
             </div>
             <div class="w3-col l6 w3-margin-bottom">
                 <h3 class="w3-large bold">Category</h3>
-                <div>{{ getPokemonCategory(pokemonSpecies.genera) }}</div>
+                <span class="pokemon-category">{{ getPokemonCategory(pokemonSpecies.genera) }}</span>
             </div>
             <div class="w3-col l6 w3-margin-bottom">
                 <h3 class="w3-large bold">Weight</h3>
-                <div>{{ getWeightInKilos(pokemonDetails.weight) }} kg</div>
+                <span class="pokemon-weight">{{ getWeightInKilos(pokemonDetails.weight) }} kg</span>
             </div>
             <div class="w3-col l6 w3-margin-bottom">
                 <h3 class="w3-large bold">Abilities</h3>
-                <div v-for="ability in pokemonAbilities" class="capitalized">
+                <span v-for="ability in pokemonAbilities" class="capitalized pokemon-abilities">
                     {{ ability.ability.name }}
-                </div>
+                </span>
             </div>
             <div class="w3-col l6 w3-margin-bottom">
                 <h3 class="w3-large bold">Gender</h3>
@@ -55,13 +55,13 @@ export default {
                     Unknown
                 </div>
                 <div v-else-if="pokemonSpecies.gender_rate === 0">
-                    Male only
+                    <i class="fa fa-solid fa-mars fa-2x"></i>
                 </div>
                 <div v-else-if="pokemonSpecies.gender_rate < 8">
-                    Both
+                    <i class="fa fa-solid fa-venus-mars fa-2x"></i>
                 </div>
                 <div v-else-if="pokemonSpecies.gender_rate === 8">
-                    Female only
+                    <i class="fa fa-solid fa-venus fa-2x"></i>
                 </div>
             </div>
         </div>

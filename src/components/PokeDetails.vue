@@ -1,10 +1,10 @@
 <script lang="ts">
 import {useRoute} from "vue-router";
 import {usePokemonDetailStore} from "../stores/pokemon-detail.ts";
-import PokeDetailsGeneral from "./poke-details-general.vue";
-import PokeDetailsStats from "./poke-details-stats.vue";
-import PokeDetailsType from "./poke-details-type.vue";
-import PokeDetailsEvolutions from "./poke-details-evolutions.vue";
+import PokeDetailsGeneral from "./PokeDetailsGeneral.vue";
+import PokeDetailsStats from "./PokeDetailsStats.vue";
+import PokeDetailsType from "./PokeDetailsType.vue";
+import PokeDetailsEvolutions from "./PokeDetailsEvolutions.vue";
 
 export default {
     components: {PokeDetailsEvolutions, PokeDetailsType, PokeDetailsStats, PokeDetailsGeneral},
